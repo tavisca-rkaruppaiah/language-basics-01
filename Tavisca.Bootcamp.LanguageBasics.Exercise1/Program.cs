@@ -2,6 +2,141 @@
 
 namespace Tavisca.Bootcamp.LanguageBasics.Exercise1
 {
+    public static class FixMultiplication
+    {
+        static int missingDigit = 0, FirstNumber, SecondNumber, ResultNumber, FirstNewNumber, SecondNewNumber;
+         
+
+        public static int FindDigit(String equation)
+        {
+            string[] stringArrayFirst, stringArraySecond, digitsArray;
+
+            stringArrayFirst = equation.Split('=');
+
+            string equationFirstPart = stringArrayFirst[0];
+            string equationSecondPart = stringArrayFirst[1];
+
+
+            if (equationFirstPart.Contains('?'))
+            {
+                stringArraySecond = equationFirstPart.Split('*');
+              
+                string equationFirstPartOne = stringArraySecond[0];
+                string equationFirstPartTwo = stringArraySecond[1];
+                
+
+
+                if (equationFirstPartOne.Contains('?'))
+                {
+
+                    missingDigit = FindMissingDigits(equationFirstPartOne, equationFirstPartTwo, equationFirstPart, equationSecondPart, 0);
+
+                }
+                else if (equationFirstPartTwo.Contains('?'))
+                {
+
+                    missingDigit = FindMissingDigits(equationFirstPartOne, equationFirstPartTwo, equationFirstPart, equationSecondPart, 1);
+
+                }
+
+
+
+            }
+            else if (equationSecondPart.Contains('?'))
+            {
+
+                digitsArray = equationFirstPart.Split('*');
+
+                if(digitsArray.Length == 2)
+                {
+                    int.TryParse(digitsArray[0], out FirstNumber);
+                    int.TryParse(digitsArray[1], out SecondNumber);
+
+                    ResultNumber = FirstNumber * SecondNumber;
+
+                    string result = ResultNumber.ToString();
+
+                    missingDigit = int.Parse(result[FindMissingPosition(equationSecondPart)].ToString());
+                }
+
+            }
+            else
+            {
+                missingDigit = 0;
+            }
+
+            return missingDigit;
+        }
+
+
+        public static int FindMissingDigits(string equationPartOne, string equationPartTwo, string equationFirstPart, string equationSecondPart, int input)
+        {
+            string missingEquation = equationPartOne, divideEquation = equationSecondPart, otherPart=equationPartTwo;
+            int missingPosition = 0;
+
+            if(input == 0)
+            {
+                missingEquation = equationPartOne;
+                divideEquation = equationSecondPart;
+                otherPart = equationPartTwo;
+            }
+            else if(input == 1)
+            {
+                missingEquation = equationPartTwo;
+                divideEquation = equationFirstPart;
+                otherPart = equationPartOne;
+            }
+
+
+
+            if (int.Parse(equationSecondPart) % int.Parse(otherPart) == 0)
+            {
+               
+                missingPosition = FindMissingPosition(missingEquation);
+
+                string newEquation = missingEquation.Remove(missingPosition, 1);
+
+                int.TryParse(otherPart, out FirstNewNumber);
+                int.TryParse(newEquation, out SecondNewNumber);
+
+                int NewResult = FirstNewNumber * SecondNewNumber;
+
+                if (equationSecondPart.Equals(NewResult.ToString()))
+                {
+                    missingDigit = -1;
+                }
+                else
+                {
+                    int findMissingNumber = int.Parse(equationSecondPart) / FirstNewNumber;
+
+                    string newresult = findMissingNumber.ToString();
+
+                    char digit = newresult[missingPosition];
+
+                    missingDigit = int.Parse(digit.ToString());
+
+
+                }
+
+
+            }
+            else
+            {
+                missingDigit = -1;
+            }
+
+            return missingDigit;
+        }
+
+        public static int FindMissingPosition(string equation)
+        {
+
+            int missingPosition = equation.IndexOf("?");
+
+            return missingPosition;
+        }
+    }
+
     class Program
     {
         static void Main(string[] args)
@@ -16,146 +151,8 @@ namespace Tavisca.Bootcamp.LanguageBasics.Exercise1
 
         private static void Test(string args, int expected)
         {
-            var result = FindDigit(args).Equals(expected) ? "PASS" : "FAIL";
+            var result = FixMultiplication.FindDigit(args).Equals(expected) ? "PASS" : "FAIL";
             Console.WriteLine($"{args} : {result}");
         }
- // Declaring the Variables
-
-        int missingDigit=0, pos, FirstNumber, SecondNumber, ResultNumber, FirstNewNumber, SecondNewNumber, NewResult;
-        string[] stringArrayFirst, stringArraySecond, digitsArray;
-
-        // method 
-
-        public int FindDigit(String equation)
-        {
-
-            //Split the Equation
-           
-            stringArrayFirst = equation.Split('=');
-
-            string partone = stringArrayFirst[0];
-            string parttwo = stringArrayFirst[1];
-           
-           // Check the conditions Equation have any Questionmark
-
-            if(partone.Contains('?'))
-            {
-
-                //Split the two part of numbers
-
-                stringArraySecond = partone.Split('*');
-
-                string partoneone = stringArraySecond[0];
-                string partonetwo = stringArraySecond[1];
-
-
-                if(partoneone.Contains('?'))
-                {
-
-                    if(int.Parse(parttwo) % int.Parse(partonetwo) == 0)
-                    {
-                        pos = partoneone.IndexOf('?');
-
-                        string newpart = partoneone.Remove(pos, 1);
-                        FirstNewNumber = int.Parse(partonetwo);
-                        SecondNewNumber = int.Parse(newpart);
-
-                     
-
-                            int NewResult = FirstNewNumber * SecondNewNumber;
-
-                            if (parttwo.Equals(NewResult.ToString()))
-                            {
-                                missingDigit = -1;
-                            }
-                            else
-                            {
-                                int second = int.Parse(parttwo) / FirstNewNumber;
-
-                                string newresult = second.ToString();
-
-                                char digit = newresult[pos];
-
-                                missingDigit = int.Parse(digit.ToString());
-
-                                
-                            }
-
-                           
-                    }
-                    else
-                    {
-                        missingDigit = -1;
-                    }
-
-
-
-
-                }
-                else if(partonetwo.Contains('?'))
-                {
-                 
-                    if(int.Parse(parttwo) % int.Parse(partoneone) == 0)
-                    {
-                        pos = partonetwo.IndexOf('?');
-
-
-                        string newpart = partonetwo.Remove(pos, 1);
-                        FirstNewNumber = int.Parse(partoneone);
-                        SecondNewNumber = int.Parse(newpart);
-
-                        NewResult = FirstNewNumber * SecondNewNumber;
-
-                            if (parttwo.Equals(NewResult.ToString()))
-                            {
-                                missingDigit = -1;
-                            }
-                            else
-                            {
-                                int second = int.Parse(parttwo) / FirstNewNumber;
-
-                                string newresult = second.ToString();
-
-                                char digit = newresult[pos];
-
-                                missingDigit = int.Parse(digit.ToString());
-
-                            }
-
-                    }
-                    else
-                    {
-                        missingDigit = -1;
-                    }
-                    
-
-                }
-                
-                
-
-            }
-            else if(parttwo.Contains('?'))
-            {
-                pos = parttwo.IndexOf('?');
-                
-                digitsArray = partone.Split('*');
-
-                FirstNumber = int.Parse(digitsArray[0]);
-
-                SecondNumber = int.Parse(digitsArray[1]);
-
-                ResultNumber = FirstNumber * SecondNumber;
-
-                string result = ResultNumber.ToString();
-
-                missingDigit = int.Parse(result[pos].ToString());
-                
-            }
-            else
-            {
-                missingDigit = 0;
-            }
-
-            return missingDigit;
     }
 }
